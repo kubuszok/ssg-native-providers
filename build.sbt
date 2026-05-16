@@ -1,14 +1,6 @@
+import kubuszok.sbt._
+import kubuszok.sbt.KubuszokPlugin.autoImport._
 import multiarch.core.Platform
-
-lazy val isCI = sys.env.get("CI").contains("true")
-
-// Version from git tags
-ThisBuild / git.useGitDescribe       := true
-ThisBuild / git.uncommittedSignifier := Some("SNAPSHOT")
-ThisBuild / git.gitUncommittedChanges := git.gitCurrentTags.value.isEmpty
-
-// Used to publish snapshots to Maven Central.
-val mavenCentralSnapshots = "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots"
 
 val publishSettings = Seq(
   organization := "com.kubuszok",
@@ -31,20 +23,11 @@ val publishSettings = Seq(
       <url>https://github.com/kubuszok/ssg-native-providers/issues</url>
     </issueManagement>
   ),
-  publishTo := {
-    if (isSnapshot.value) Some(mavenCentralSnapshots)
-    else localStaging.value
-  },
-  publishMavenStyle := true,
-  Test / publishArtifact := false,
-  pomIncludeRepository := { _ =>
-    false
-  },
-  versionScheme := Some("early-semver")
+  projectType := ProjectType.ScalaLibrary
 )
 
 val noPublishSettings =
-  Seq(publish / skip := true, publishArtifact := false)
+  Seq(projectType := ProjectType.NonPublished)
 
 // ── Shared helpers ────────────────────────────────────────────────────
 
@@ -73,7 +56,6 @@ val providerSettings = Seq(
 
 lazy val root = project
   .in(file("."))
-  .enablePlugins(GitVersioning, GitBranchPrompt)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
   .aggregate(
@@ -83,13 +65,7 @@ lazy val root = project
     `tree-sitter-queries`
   )
   .settings(
-    name := "ssg-native-providers-root",
-    commands += Command.command("ci-release") { state =>
-      val extracted = Project.extract(state)
-      val tags      = extracted.get(git.gitCurrentTags)
-      if (tags.nonEmpty) "publishSigned" :: "sonaRelease" :: state
-      else "publishSigned" :: state
-    }
+    name := "ssg-native-providers-root"
   )
 
 // ── Scala Native provider (static libraries) ─────────────────────────
