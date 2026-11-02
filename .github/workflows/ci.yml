@@ -23,7 +23,7 @@ jobs:
         with:
           submodules: false
 
-      - uses: coursier/cache-action@v8
+      - uses: coursier/cache-action@v9
       - uses: coursier/setup-action@v3.0.4
         with:
           jvm: ${{ env.JVM_VERSION }}
