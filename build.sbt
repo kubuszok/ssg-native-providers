@@ -35,9 +35,8 @@ val noPublishSettings =
 val crossDir = settingKey[File]("Root directory containing cross-compiled native artifacts")
 ThisBuild / crossDir := (ThisBuild / baseDirectory).value / "native" / "cross"
 
-/** Create fat JAR mappings: native/<platform-classifier>/<file> for matching files.
-  * sbt 2.0 packageBin mappings are keyed by xsbti.HashedVirtualFileRef, so each File is
-  * converted through the build's FileConverter.
+/** Create fat JAR mappings: native/<platform-classifier>/<file> for matching files. sbt 2.0 packageBin mappings are
+  * keyed by xsbti.HashedVirtualFileRef, so each File is converted through the build's FileConverter.
   */
 def fatJarMappings(
     conv: xsbti.FileConverter,
@@ -48,15 +47,18 @@ def fatJarMappings(
   platforms.flatMap { p =>
     val dir = crossRoot / p.classifier
     if (dir.exists())
-      sbt.IO.listFiles(dir).filter(f => f.isFile && fileFilter(f.getName))
-        .map(f => (conv.toVirtualFile(f.toPath): xsbti.HashedVirtualFileRef) -> s"native/${p.classifier}/${f.getName}").toSeq
+      sbt.IO
+        .listFiles(dir)
+        .filter(f => f.isFile && fileFilter(f.getName))
+        .map(f => (conv.toVirtualFile(f.toPath): xsbti.HashedVirtualFileRef) -> s"native/${p.classifier}/${f.getName}")
+        .toSeq
     else Seq.empty
   }
 
 // Common provider settings (no Scala code, pure resource JARs)
 val providerSettings = Seq(
   autoScalaLibrary := false,
-  crossPaths       := false,
+  crossPaths := false,
   Compile / packageDoc / publishArtifact := false,
   Compile / packageSrc / publishArtifact := false
 )
@@ -89,8 +91,10 @@ lazy val `pnm-provider-tree-sitter-desktop` = project
       val cross = crossDir.value
       val conv = fileConverter.value
       val libs = Set(
-        "libtree_sitter_all.dylib", "libtree_sitter_all.so",
-        "tree_sitter_all.dll", "tree_sitter_all.dll.lib"
+        "libtree_sitter_all.dylib",
+        "libtree_sitter_all.so",
+        "tree_sitter_all.dll",
+        "tree_sitter_all.dll.lib"
       )
       fatJarMappings(conv, cross, Platform.desktop, libs.contains)
     }
@@ -108,7 +112,8 @@ lazy val `sn-provider-tree-sitter` = project
       val cross = crossDir.value
       val conv = fileConverter.value
       val libs = Set(
-        "libtree_sitter_all.a", "tree_sitter_all.lib"
+        "libtree_sitter_all.a",
+        "tree_sitter_all.lib"
       )
       fatJarMappings(conv, cross, Platform.desktop, libs.contains)
     }
@@ -128,8 +133,12 @@ lazy val `tree-sitter-queries` = project
       if (queriesDir.exists()) {
         val langDirs = sbt.IO.listFiles(queriesDir).filter(_.isDirectory)
         langDirs.flatMap { langDir =>
-          sbt.IO.listFiles(langDir).filter(f => f.isFile && f.getName.endsWith(".scm"))
-            .map(f => (conv.toVirtualFile(f.toPath): xsbti.HashedVirtualFileRef) -> s"queries/${langDir.getName}/${f.getName}")
+          sbt.IO
+            .listFiles(langDir)
+            .filter(f => f.isFile && f.getName.endsWith(".scm"))
+            .map(f =>
+              (conv.toVirtualFile(f.toPath): xsbti.HashedVirtualFileRef) -> s"queries/${langDir.getName}/${f.getName}"
+            )
         }.toSeq
       } else Seq.empty[(xsbti.HashedVirtualFileRef, String)]
     }
@@ -154,8 +163,11 @@ lazy val `wasm-provider-tree-sitter` = project
         val grammars = {
           val gDir = wasmDir / "grammars"
           if (gDir.exists())
-            sbt.IO.listFiles(gDir).filter(f => f.isFile && f.getName.endsWith(".wasm"))
-              .map(f => (conv.toVirtualFile(f.toPath): xsbti.HashedVirtualFileRef) -> s"wasm/grammars/${f.getName}").toSeq
+            sbt.IO
+              .listFiles(gDir)
+              .filter(f => f.isFile && f.getName.endsWith(".wasm"))
+              .map(f => (conv.toVirtualFile(f.toPath): xsbti.HashedVirtualFileRef) -> s"wasm/grammars/${f.getName}")
+              .toSeq
           else Seq.empty[(xsbti.HashedVirtualFileRef, String)]
         }
         core ++ grammars
