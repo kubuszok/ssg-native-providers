@@ -1,5 +1,5 @@
 // kubuszok plugin (bundles: sbt-git, sbt-pgp, sbt-scalafmt, and more)
-addSbtPlugin("com.kubuszok" % "sbt-kubuszok" % "0.2.5")
+addSbtPlugin("com.kubuszok" % "sbt-kubuszok" % "0.2.6")
 
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 
